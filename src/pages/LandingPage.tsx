@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import Hero from '../components/Hero';
-import Gallery from '../components/Gallery';
-import Features from '../components/Features';
-import Reviews from '../components/Reviews';
-import OrderForm from '../components/OrderForm';
-import StickyCTA from '../components/StickyCTA';
-import SuccessModal from '../components/SuccessModal';
+import { supabase } from '../lib/supabase';
 
 export default function LandingPage() {
   const [product, setProduct] = useState<any>(null);
@@ -15,12 +8,15 @@ export default function LandingPage() {
 
   const fetchActiveProduct = async () => {
     try {
-      const res = await fetch('/api/products?active=true');
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true);
+      
+      if (error) throw error;
+
+      if (data && data.length > 0) {
         setProduct(data[0]);
-      } else if (data && !Array.isArray(data)) {
-        setProduct(data);
       } else {
         // Fallback default product if none is active in DB
         setProduct({
