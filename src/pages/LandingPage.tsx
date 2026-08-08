@@ -1,5 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import Features from '../components/Features';
+import Reviews from '../components/Reviews';
+import OrderForm from '../components/OrderForm';
+import StickyCTA from '../components/StickyCTA';
+import SuccessModal from '../components/SuccessModal';
+
+const DEFAULT_PRODUCT = {
+  id: 2,
+  title: 'মদিনার প্রিমিয়াম আজওয়া খেজুর (Premium Ajwa Dates)',
+  subtitle: 'সরাসরি মদিনা শরিফ থেকে আমদানিকৃত শতভাগ খাঁটি ও প্রিমিয়াম গ্রেডের আজওয়া খেজুর। ২ কেজি ও ৫ কেজির আকর্ষণীয় প্যাকেজে ধামাকা অফার!',
+  regular_price: 2400,
+  sale_price: 1590,
+  discount_percentage: 34,
+  description: 'আজওয়া খেজুর হলো খেজুরের রাজা। সরাসরি মদিনা শরিফের নিজস্ব বাগান থেকে আমদানিকৃত আমাদের এই আজওয়া খেজুর অত্যন্ত নরম, সুস্বাদু এবং পুষ্টিগুণে ভরপুর। কোনো প্রকার কৃত্রিম মিষ্টি বা প্রিজারভেটিভ ছাড়াই সম্পূর্ণ প্রাকৃতিকভাবে প্রক্রিয়াজাতকৃত। আমাদের আজওয়া খেজুর আকারে বড় এবং অত্যন্ত প্রিমিয়াম কোয়ালিটির। পরিবারে সুস্বাস্থ্যের জন্য আজই অর্ডার করুন!',
+  features: [
+    'সরাসরি মদিনা শরিফ থেকে আমদানিকৃত শতভাগ অরিজিনাল খেজুরের নিশ্চয়তা।',
+    'কোনো প্রকার কেমিক্যাল, প্রিজারভেটিভ বা কৃত্রিম মিষ্টি মুক্ত সম্পূর্ণ প্রাকৃতিক খেজুর।',
+    'খেতে অত্যন্ত সুস্বাদু, নরম এবং পুষ্টিগুণে ভরপুর (প্রাকৃতিক এনার্জি বুস্টার)।',
+    'ডেলিভারি ম্যানের সামনে পণ্য দেখে, খেয়ে গুণগত মান যাচাই করে পেমেন্ট করার সুবিধা।',
+    '২ কেজি এবং ৫ কেজির প্রিমিয়াম ফুড-গ্রেড জিপলক বক্সে আকর্ষণীয় ডিসকাউন্ট।'
+  ],
+  images: [
+    '/images/dates-1.jpg',
+    '/images/dates-2.jpg',
+    '/images/dates-3.jpg'
+  ],
+  video_url: '/videos/product-video.mp4',
+  delivery_charge_inside: 60,
+  delivery_charge_outside: 120,
+  stock_status: 'In Stock'
+};
 
 export default function LandingPage() {
   const [product, setProduct] = useState<any>(null);
@@ -18,35 +51,11 @@ export default function LandingPage() {
       if (data && data.length > 0) {
         setProduct(data[0]);
       } else {
-        // Fallback default product if none is active in DB
-        setProduct({
-          id: 2,
-          title: 'মদিনার প্রিমিয়াম আজওয়া খেজুর (Premium Ajwa Dates)',
-          subtitle: 'সরাসরি মদিনা শরিফ থেকে আমদানিকৃত শতভাগ খাঁটি ও প্রিমিয়াম গ্রেডের আজওয়া খেজুর। ২ কেজি ও ৫ কেজির আকর্ষণীয় প্যাকেজে ধামাকা অফার!',
-          regular_price: 2400,
-          sale_price: 1590,
-          discount_percentage: 34,
-          description: 'আজওয়া খেজুর হলো খেজুরের রাজা। সরাসরি মদিনা শরিফের নিজস্ব বাগান থেকে আমদানিকৃত আমাদের এই আজওয়া খেজুর অত্যন্ত নরম, সুস্বাদু এবং পুষ্টিগুণে ভরপুর। কোনো প্রকার কৃত্রিম মিষ্টি বা প্রিজারভেটিভ ছাড়াই সম্পূর্ণ প্রাকৃতিকভাবে প্রক্রিয়াজাতকৃত। আমাদের আজওয়া খেজুর আকারে বড় এবং অত্যন্ত প্রিমিয়াম কোয়ালিটির। পরিবারে সুস্বাস্থ্যের জন্য আজই অর্ডার করুন!',
-          features: [
-            'সরাসরি মদিনা শরিফ থেকে আমদানিকৃত শতভাগ অরিজিনাল খেজুরের নিশ্চয়তা।',
-            'কোনো প্রকার কেমিক্যাল, প্রিজারভেটিভ বা কৃত্রিম মিষ্টি মুক্ত সম্পূর্ণ প্রাকৃতিক খেজুর।',
-            'খেতে অত্যন্ত সুস্বাদু, নরম এবং পুষ্টিগুণে ভরপুর (প্রাকৃতিক এনার্জি বুস্টার)।',
-            'ডেলিভারি ম্যানের সামনে পণ্য দেখে, খেয়ে গুণগত মান যাচাই করে পেমেন্ট করার সুবিধা।',
-            '২ কেজি এবং ৫ কেজির প্রিমিয়াম ফুড-গ্রেড জিপলক বক্সে আকর্ষণীয় ডিসকাউন্ট।'
-          ],
-          images: [
-            '/images/dates-1.jpg',
-            '/images/dates-2.jpg',
-            '/images/dates-3.jpg'
-          ],
-          video_url: '/videos/product-video.mp4',
-          delivery_charge_inside: 60,
-          delivery_charge_outside: 120,
-          stock_status: 'In Stock'
-        });
+        setProduct(DEFAULT_PRODUCT);
       }
     } catch (err) {
-      console.error('Failed to fetch active product:', err);
+      console.error('Failed to fetch active product from Supabase, using fallback:', err);
+      setProduct(DEFAULT_PRODUCT);
     } finally {
       setLoading(false);
     }
@@ -72,21 +81,12 @@ export default function LandingPage() {
     );
   }
 
-  if (!product) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white px-4 text-center">
-        <h2 className="text-xl font-black text-gray-900">কোনো সক্রিয় প্রোডাক্ট পাওয়া যায়নি!</h2>
-        <p className="text-gray-500 text-sm mt-1">দয়া করে এডমিন প্যানেল থেকে একটি প্রোডাক্ট আপলোড এবং সক্রিয় করুন।</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-16 md:pb-0">
       {/* Navbar */}
       <Navbar phone="01700000000" onOrderClick={scrollToOrderForm} />
 
-      {/* Unified Hero Section (Includes Integrated Media Gallery) */}
+      {/* Unified Hero Section */}
       <Hero
         title={product.title}
         subtitle={product.subtitle}
@@ -112,7 +112,7 @@ export default function LandingPage() {
         salePrice={product.sale_price}
         deliveryInside={product.delivery_charge_inside || 60}
         deliveryOutside={product.delivery_charge_outside || 120}
-        onOrderSuccess={(order) => setSuccessOrder(order)}
+        onOrderSuccess={(order: any) => setSuccessOrder(order)}
       />
 
       {/* Sticky Bottom Mobile CTA */}
