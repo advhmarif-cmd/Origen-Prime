@@ -10,7 +10,7 @@ import SuccessModal from '../components/SuccessModal';
 
 const DEFAULT_PRODUCT = {
   id: 2,
-  title: 'মদিনার প্রিমিয়াম আজওয়া খেজুর (Premium Ajwa Dates)',
+  title: 'প্রিমিয়াম আজওয়া খেজুর (Premium Ajwa Dates)',
   subtitle: 'সরাসরি মদিনা শরিফ থেকে আমদানিকৃত শতভাগ খাঁটি ও প্রিমিয়াম গ্রেডের আজওয়া খেজুর। ২ কেজি ও ৫ কেজির আকর্ষণীয় প্যাকেজে ধামাকা অফার!',
   regular_price: 2400,
   sale_price: 1590,
@@ -21,7 +21,7 @@ const DEFAULT_PRODUCT = {
     'কোনো প্রকার কেমিক্যাল, প্রিজারভেটিভ বা কৃত্রিম মিষ্টি মুক্ত সম্পূর্ণ প্রাকৃতিক খেজুর।',
     'খেতে অত্যন্ত সুস্বাদু, নরম এবং পুষ্টিগুণে ভরপুর (প্রাকৃতিক এনার্জি বুস্টার)।',
     'ডেলিভারি ম্যানের সামনে পণ্য দেখে, খেয়ে গুণগত মান যাচাই করে পেমেন্ট করার সুবিধা।',
-    '২ কেজি এবং ৫ কেজির প্রিমিয়াম ফুড-গ্রেড জিপলক বক্সে আকর্ষণীয় ডিসকাউন্ট।'
+    '২ কেজি এবং ৫ কেজির প্রিমিয়াম ফুড-গ্রেড বক্সে আকর্ষণীয় ডিসকাউন্ট।'
   ],
   images: [
     '/images/dates-1.jpg',
@@ -29,7 +29,7 @@ const DEFAULT_PRODUCT = {
     '/images/dates-3.jpg'
   ],
   video_url: '/videos/product-video.mp4',
-  delivery_charge_inside: 60,
+  delivery_charge_inside: 70,
   delivery_charge_outside: 120,
   stock_status: 'In Stock'
 };
@@ -84,7 +84,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-16 md:pb-0">
       {/* Navbar */}
-      <Navbar phone="01700000000" onOrderClick={scrollToOrderForm} />
+      <Navbar phone="01732669919" onOrderClick={scrollToOrderForm} />
 
       {/* Unified Hero Section */}
       <Hero

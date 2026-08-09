@@ -8,11 +8,11 @@ interface FeaturesProps {
 
 export default function Features({ description, features }: FeaturesProps) {
   const defaultFeatures = [
-    '১০০% প্রিমিয়াম ও অরিজিনাল প্রোডাক্টের নিশ্চয়তা।',
-    'সারা বাংলাদেশে ৩ থেকে ৫ দিনের মধ্যে দ্রুততম হোম ডেলিভারি।',
+    '১০০% প্রিমিয়াম প্রোডাক্টের নিশ্চয়তা।',
+    'সারা বাংলাদেশে ১ থেকে ২ দিনের মধ্যে হোম ডেলিভারি।',
     'ডেলিভারি ম্যানের সামনে পণ্য চেক করে রিসিভ করার সুযোগ।',
-    'যেকোনো ত্রুটিপূর্ণ পণ্যের ক্ষেত্রে ৩ দিনের ফ্রি এক্সচেঞ্জ গ্যারান্টি।',
-    'অত্যন্ত টেকসই এবং দীর্ঘস্থায়ী ব্যাটারি ব্যাকআপ।'
+    'যেকোনো অসন্তোসের ক্ষেত্রে ২ দিনের ফ্রি এক্সচেঞ্জ গ্যারান্টি।',
+    'মন মাতানো স্বাদের নিশ্চয়তা'
   ];
 
   const displayFeatures = features && features.length > 0 ? features : defaultFeatures;
@@ -25,7 +25,7 @@ export default function Features({ description, features }: FeaturesProps) {
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <h3 className="text-lg md:text-xl font-black text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center">
               <HeartHandshake className="w-5 h-5 text-red-600 mr-2" />
-              কেন আমাদের থেকে পণ্যটি নিবেন?
+              কেন আমাদের থেকে নিবেন?
             </h3>
             {description ? (
               <p className="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
@@ -33,7 +33,7 @@ export default function Features({ description, features }: FeaturesProps) {
               </p>
             ) : (
               <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                আমাদের এই স্মার্ট ওয়াচটি অত্যন্ত প্রিমিয়াম কোয়ালিটি এবং স্টাইলিশ ডিজাইনের। আপনি এটি ক্যাজুয়াল বা ফরমাল যেকোনো পোশাকের সাথে অনায়াসে পরতে পারবেন। এর ফুল টাচ স্ক্রিন ডিসপ্লে অত্যন্ত স্মুথ এবং ব্রাইট। স্পোর্টস ট্র্যাকিং, হার্ট রেট মনিটর এবং ব্লুটুথ কলিং সহ প্রয়োজনীয় সব স্মার্ট ফিচার রয়েছে এতে। আজই অর্ডার করুন এবং উপভোগ করুন ধামাকা ডিসকাউন্ট!
+                আমরা দিচ্ছি সৌদি হতে সরাসরি আমদানিকৃত মনমাতানো স্বাদের খেজুর তা-ও আবার পাইকারি দামে !
               </p>
             )}
           </div>
@@ -60,7 +60,7 @@ export default function Features({ description, features }: FeaturesProps) {
           <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-2xs text-center flex flex-col items-center">
             <Truck className="w-8 h-8 text-red-600 mb-2 animate-bounce" />
             <span className="font-extrabold text-sm text-gray-900">সারা দেশে ডেলিভারি</span>
-            <span className="text-[10px] text-gray-500 mt-1">৩-৫ কর্মদিবস</span>
+            <span className="text-[10px] text-gray-500 mt-1">১-২ কর্মদিবস</span>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-2xs text-center flex flex-col items-center">

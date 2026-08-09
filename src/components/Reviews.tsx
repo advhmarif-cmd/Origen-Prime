@@ -7,7 +7,7 @@ export default function Reviews() {
       name: 'মোঃ আরিফুর রহমান',
       location: 'মিরপুর, ঢাকা',
       rating: 5,
-      comment: 'স্মার্ট ওয়াচটি সত্যি অসাধারণ। হুবহু ছবির মতোই প্রিমিয়াম কোয়ালিটি। ব্লুটুথ কলিং খুব স্মুথ কাজ করে। ধন্যবাদ সেলারকে!',
+      comment: 'সত্যি অসাধারণ। হুবহু ছবির মতোই প্রিমিয়াম কোয়ালিটি। ধন্যবাদ সেলারকে!',
       date: '২ দিন আগে',
       avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
     },
@@ -15,7 +15,7 @@ export default function Reviews() {
       name: 'সাদিয়া আক্তার',
       location: 'চকবাজার, চট্টগ্রাম',
       rating: 5,
-      comment: 'অর্ডার করার ৩ দিনের মধ্যে ডেলিভারি পেয়েছি। ডেলিভারি ম্যানের সামনে খুলে দেখে নিয়েছি। খুবই সন্তুষ্ট!',
+      comment: 'অর্ডার করার ১ দিনের মধ্যে ডেলিভারি পেয়েছি। ডেলিভারি ম্যানের সামনে খুলে দেখে নিয়েছি। খুবই সন্তুষ্ট!',
       date: '৫ দিন আগে',
       avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150'
     },
@@ -23,7 +23,7 @@ export default function Reviews() {
       name: 'রাসেল আহমেদ',
       location: 'উপশহর, সিলেট',
       rating: 5,
-      comment: 'এই বাজেটে এর চেয়ে ভালো ঘড়ি আর হতে পারে না। ব্যাটারি ব্যাকআপ দারুণ, চার্জ হতেও কম সময় লাগে। রিকমেন্ডেড!',
+      comment: 'এই বাজেটে এর চেয়ে ভালো আজওয়া খেজুর আর হতে পারে না। কম সময় লাগে। রিকমেন্ডেড!',
       date: '১ সপ্তাহ আগে',
       avatar: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=150'
     }
