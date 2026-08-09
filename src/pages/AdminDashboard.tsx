@@ -22,7 +22,6 @@ export default function AdminDashboard() {
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'stats'>('orders');
 
-  // Products state
   const [products, setProducts] = useState<any[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [newProduct, setNewProduct] = useState({
@@ -32,26 +31,23 @@ export default function AdminDashboard() {
     sale_price: 1290,
     discount_percentage: 48,
     description: '',
-    features: '', // Will be split by newline
-    images: '', // Comma separated URLs
+    features: '',
+    images: '',
     video_url: '',
     delivery_charge_inside: 60,
     delivery_charge_outside: 120,
     stock_status: 'In Stock',
     is_active: true
   });
-  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [editingProductId, setEditingProductId] = useState<any>(null);
 
-  // Orders state
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [orderFilter, setOrderFilter] = useState<'All' | 'Pending' | 'Confirmed' | 'Shipped' | 'Cancelled'>('All');
 
-  // Stats state
   const [stats, setStats] = useState<any>(null);
   const [statsLoading, setStatsLoading] = useState(false);
 
-  // Authentication check on mount
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
     if (token === 'admin_session_token_123456') {
@@ -67,7 +63,6 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, orderFilter]);
 
-  // Auth Handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -94,15 +89,16 @@ export default function AdminDashboard() {
     setIsAuthenticated(false);
   };
 
-  // Products CRUD
   const fetchProducts = async () => {
     setProductsLoading(true);
     try {
       const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      setProducts(data || []);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setProducts([]);
     } finally {
       setProductsLoading(false);
     }
@@ -112,13 +108,13 @@ export default function AdminDashboard() {
     e.preventDefault();
     const formattedProduct = {
       ...newProduct,
-      features: newProduct.features.split('\n').filter(f => f.trim() !== ''),
-      images: newProduct.images.split(',').map(img => img.trim()).filter(img => img !== ''),
-      regular_price: parseInt(newProduct.regular_price as any),
-      sale_price: parseInt(newProduct.sale_price as any),
-      discount_percentage: Math.round(((parseInt(newProduct.regular_price as any) - parseInt(newProduct.sale_price as any)) / parseInt(newProduct.regular_price as any)) * 100),
-      delivery_charge_inside: parseInt(newProduct.delivery_charge_inside as any),
-      delivery_charge_outside: parseInt(newProduct.delivery_charge_outside as any)
+      features: typeof newProduct.features === 'string' ? newProduct.features.split('\n').filter(f => f.trim() !== '') : [],
+      images: typeof newProduct.images === 'string' ? newProduct.images.split(',').map(img => img.trim()).filter(img => img !== '') : [],
+      regular_price: Number(newProduct.regular_price),
+      sale_price: Number(newProduct.sale_price),
+      discount_percentage: Math.round(((Number(newProduct.regular_price) - Number(newProduct.sale_price)) / Number(newProduct.regular_price)) * 100),
+      delivery_charge_inside: Number(newProduct.delivery_charge_inside),
+      delivery_charge_outside: Number(newProduct.delivery_charge_outside)
     };
 
     try {
@@ -165,23 +161,23 @@ export default function AdminDashboard() {
   const handleEditProduct = (prod: any) => {
     setEditingProductId(prod.id);
     setNewProduct({
-      title: prod.title,
-      subtitle: prod.subtitle,
-      regular_price: prod.regular_price,
-      sale_price: prod.sale_price,
-      discount_percentage: prod.discount_percentage,
-      description: prod.description,
+      title: prod.title || '',
+      subtitle: prod.subtitle || '',
+      regular_price: prod.regular_price || 0,
+      sale_price: prod.sale_price || 0,
+      discount_percentage: prod.discount_percentage || 0,
+      description: prod.description || '',
       features: Array.isArray(prod.features) ? prod.features.join('\n') : '',
       images: Array.isArray(prod.images) ? prod.images.join(', ') : '',
       video_url: prod.video_url || '',
       delivery_charge_inside: prod.delivery_charge_inside || 60,
       delivery_charge_outside: prod.delivery_charge_outside || 120,
       stock_status: prod.stock_status || 'In Stock',
-      is_active: prod.is_active
+      is_active: !!prod.is_active
     });
   };
 
-  const handleDeleteProduct = async (id: number) => {
+  const handleDeleteProduct = async (id: any) => {
     if (!confirm('আপনি কি নিশ্চিতভাবে পণ্যটি মুছে ফেলতে চান?')) return;
     try {
       const res = await fetch('/api/products', {
@@ -198,7 +194,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleToggleProductActive = async (id: number, currentStatus: boolean) => {
+  const handleToggleProductActive = async (id: any, currentStatus: boolean) => {
     try {
       const res = await fetch('/api/products', {
         method: 'PUT',
@@ -213,21 +209,22 @@ export default function AdminDashboard() {
     }
   };
 
-  // Orders CRUD
   const fetchOrders = async () => {
     setOrdersLoading(true);
     try {
       const res = await fetch(`/api/orders?status=${orderFilter}`);
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      setOrders(data || []);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setOrders([]);
     } finally {
       setOrdersLoading(false);
     }
   };
 
-  const handleUpdateOrderStatus = async (id: number, status: string) => {
+  const handleUpdateOrderStatus = async (id: any, status: string) => {
     try {
       const res = await fetch('/api/orders', {
         method: 'PUT',
@@ -243,7 +240,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteOrder = async (id: number) => {
+  const handleDeleteOrder = async (id: any) => {
     if (!confirm('আপনি কি অর্ডারটি মুছে ফেলতে চান?')) return;
     try {
       const res = await fetch('/api/orders', {
@@ -260,11 +257,11 @@ export default function AdminDashboard() {
     }
   };
 
-  // Analytics Stats
   const fetchStats = async () => {
     setStatsLoading(true);
     try {
       const res = await fetch('/api/stats');
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setStats(data);
     } catch (err) {
@@ -274,7 +271,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Login Overlay Screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -318,8 +314,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col md:flex-row">
-      
-      {/* Sidebar navigation */}
       <aside className="w-full md:w-64 bg-gray-950 text-white shrink-0 flex flex-col justify-between">
         <div className="p-5">
           <div className="flex items-center space-x-2.5 mb-8">
@@ -378,10 +372,7 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main content body */}
       <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-6xl mx-auto w-full">
-        
-        {/* Header bar */}
         <header className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
           <div>
             <h2 className="text-xl md:text-2xl font-black text-gray-900 uppercase">
@@ -391,7 +382,6 @@ export default function AdminDashboard() {
             </h2>
             <p className="text-xs text-gray-500 font-medium mt-1">আপনার স্টোরের ডেটা রিয়েল-টাইমে পর্যবেক্ষণ করুন।</p>
           </div>
-
           <button
             onClick={() => {
               fetchProducts();
@@ -399,16 +389,13 @@ export default function AdminDashboard() {
               fetchStats();
             }}
             className="bg-white hover:bg-gray-100 border border-gray-200 p-2 rounded-xl text-gray-600 shadow-2xs transition"
-            title="Refresh Data"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </header>
 
-        {/* Tab content renderer */}
         {activeTab === 'orders' && (
           <div className="space-y-6">
-            {/* Orders Tab Header with Filter */}
             <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl border border-gray-100 shadow-2xs">
               <div className="flex flex-wrap gap-1.5">
                 {(['All', 'Pending', 'Confirmed', 'Shipped', 'Cancelled'] as const).map(filter => (
@@ -432,11 +419,9 @@ export default function AdminDashboard() {
               <span className="text-xs font-bold text-gray-500">সর্বমোট: {orders.length}টি অর্ডার পাওয়া গেছে</span>
             </div>
 
-            {/* Orders Table/List */}
             {ordersLoading ? (
               <div className="text-center py-12">
                 <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <span className="text-xs font-bold text-gray-500">লোড হচ্ছে...</span>
               </div>
             ) : orders.length === 0 ? (
               <div className="bg-white border border-gray-100 rounded-xl p-12 text-center text-gray-500 font-bold">
@@ -465,14 +450,12 @@ export default function AdminDashboard() {
                             <span className="block font-bold text-gray-900">{order.customer_name}</span>
                             <span className="block text-gray-500 mt-0.5">{order.customer_phone}</span>
                           </td>
-                          <td className="px-5 py-4 max-w-[180px] truncate" title={order.customer_address}>
-                            {order.customer_address}
-                          </td>
+                          <td className="px-5 py-4 max-w-[180px] truncate">{order.customer_address}</td>
                           <td className="px-5 py-4">
                             <span className="block font-bold text-gray-900 truncate max-w-[150px]">{order.product_title}</span>
                             <span className="block text-gray-400 mt-0.5">পরিমাণ: {order.quantity}টি</span>
                           </td>
-                          <td className="px-5 py-4 font-black text-gray-900">৳{order.total_amount.toLocaleString()}</td>
+                          <td className="px-5 py-4 font-black text-gray-900">৳{order.total_amount?.toLocaleString()}</td>
                           <td className="px-5 py-4">
                             <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black ${
                               order.status === 'Pending' && 'bg-amber-100 text-amber-800'
@@ -489,39 +472,12 @@ export default function AdminDashboard() {
                           <td className="px-5 py-4 text-center">
                             <div className="flex items-center justify-center gap-1">
                               {order.status === 'Pending' && (
-                                <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, 'Confirmed')}
-                                  className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition"
-                                  title="Confirm Order"
-                                >
-                                  <Check className="w-4 h-4" />
-                                </button>
+                                <button onClick={() => handleUpdateOrderStatus(order.id, 'Confirmed')} className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Check className="w-4 h-4" /></button>
                               )}
                               {order.status === 'Confirmed' && (
-                                <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, 'Shipped')}
-                                  className="p-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition"
-                                  title="Deliver Order"
-                                >
-                                  <Check className="w-4 h-4" />
-                                </button>
+                                <button onClick={() => handleUpdateOrderStatus(order.id, 'Shipped')} className="p-1.5 bg-green-50 text-green-600 rounded-lg"><Check className="w-4 h-4" /></button>
                               )}
-                              {order.status !== 'Cancelled' && order.status !== 'Shipped' && (
-                                <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, 'Cancelled')}
-                                  className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition"
-                                  title="Cancel Order"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleDeleteOrder(order.id)}
-                                className="p-1.5 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-red-600 rounded-lg transition"
-                                title="Delete Order"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                              <button onClick={() => handleDeleteOrder(order.id)} className="p-1.5 bg-gray-50 text-gray-500 hover:text-red-600 rounded-lg"><Trash2 className="w-4 h-4" /></button>
                             </div>
                           </td>
                         </tr>
@@ -536,241 +492,72 @@ export default function AdminDashboard() {
 
         {activeTab === 'products' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            
-            {/* Product Upload/Edit Form */}
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-2xs space-y-4 lg:col-span-1">
               <h3 className="text-sm font-black text-gray-900 border-b border-gray-100 pb-3 flex items-center">
                 <Plus className="w-4 h-4 text-red-600 mr-1.5" />
                 {editingProductId ? 'পণ্য সংশোধন করুন' : 'নতুন পণ্য আপলোড করুন'}
               </h3>
-
               <form onSubmit={handleProductSubmit} className="space-y-4 text-xs font-bold text-gray-700">
                 <div>
                   <label className="block mb-1">পণ্যের নাম (Title):</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="যেমন: T900 Ultra Smart Watch"
-                    value={newProduct.title}
-                    onChange={e => setNewProduct({ ...newProduct, title: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden focus:ring-1 focus:ring-red-500"
-                  />
+                  <input type="text" required value={newProduct.title} onChange={e => setNewProduct({ ...newProduct, title: e.target.value })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                 </div>
-
                 <div>
-                  <label className="block mb-1">সাবটাইটেল (Subtitle):</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="যেমন: ধামাকা ধামাকা অফার!"
-                    value={newProduct.subtitle}
-                    onChange={e => setNewProduct({ ...newProduct, subtitle: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                  />
+                  <label className="block mb-1">সাবটাইটেল:</label>
+                  <input type="text" value={newProduct.subtitle} onChange={e => setNewProduct({ ...newProduct, subtitle: e.target.value })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                 </div>
-
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block mb-1">পূর্বের মূল্য (Regular Price):</label>
-                    <input
-                      type="number"
-                      required
-                      value={newProduct.regular_price}
-                      onChange={e => setNewProduct({ ...newProduct, regular_price: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                    />
+                    <label className="block mb-1">Regular Price:</label>
+                    <input type="number" value={newProduct.regular_price} onChange={e => setNewProduct({ ...newProduct, regular_price: Number(e.target.value) })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                   </div>
                   <div>
-                    <label className="block mb-1">বর্তমান মূল্য (Sale Price):</label>
-                    <input
-                      type="number"
-                      required
-                      value={newProduct.sale_price}
-                      onChange={e => setNewProduct({ ...newProduct, sale_price: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                    />
+                    <label className="block mb-1">Sale Price:</label>
+                    <input type="number" required value={newProduct.sale_price} onChange={e => setNewProduct({ ...newProduct, sale_price: Number(e.target.value) })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                   </div>
                 </div>
-
                 <div>
-                  <label className="block mb-1">পণ্যের বিবরণ (Description):</label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="পণ্যের বিস্তারিত বিবরণ এখানে লিখুন..."
-                    value={newProduct.description}
-                    onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                  />
+                  <label className="block mb-1">Description:</label>
+                  <textarea rows={3} value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                 </div>
-
                 <div>
-                  <label className="block mb-1">সুবিধাসমূহ (Features - প্রতি লাইনে একটি):</label>
-                  <textarea
-                    rows={3}
-                    placeholder="সুবিধা ১&#10;সুবিধা ২&#10;সুবিধা ৩"
-                    value={newProduct.features}
-                    onChange={e => setNewProduct({ ...newProduct, features: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                  />
+                  <label className="block mb-1">Features (প্রতি লাইনে একটি):</label>
+                  <textarea rows={2} value={newProduct.features} onChange={e => setNewProduct({ ...newProduct, features: e.target.value })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                 </div>
-
                 <div>
-                  <label className="block mb-1">ছবির লিংকসমূহ (Comma-separated URLs):</label>
-                  <input
-                    type="text"
-                    placeholder="/images/product-1.jpg, /images/product-2.jpg"
-                    value={newProduct.images}
-                    onChange={e => setNewProduct({ ...newProduct, images: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                  />
+                  <label className="block mb-1">Images (Comma separated URLs):</label>
+                  <input type="text" value={newProduct.images} onChange={e => setNewProduct({ ...newProduct, images: e.target.value })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                 </div>
-
                 <div>
-                  <label className="block mb-1">ভিডিও লিংক (Video URL):</label>
-                  <input
-                    type="text"
-                    placeholder="/videos/product-video.mp4"
-                    value={newProduct.video_url}
-                    onChange={e => setNewProduct({ ...newProduct, video_url: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                  />
+                  <label className="block mb-1">Video URL:</label>
+                  <input type="text" value={newProduct.video_url} onChange={e => setNewProduct({ ...newProduct, video_url: e.target.value })} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1">ডেলিভারি চার্জ (ঢাকা):</label>
-                    <input
-                      type="number"
-                      required
-                      value={newProduct.delivery_charge_inside}
-                      onChange={e => setNewProduct({ ...newProduct, delivery_charge_inside: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1">ডেলিভারি চার্জ (ঢাকার বাইরে):</label>
-                    <input
-                      type="number"
-                      required
-                      value={newProduct.delivery_charge_outside}
-                      onChange={e => setNewProduct({ ...newProduct, delivery_charge_outside: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-hidden"
-                    />
-                  </div>
-                </div>
-
                 <div className="flex items-center space-x-2 py-1">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={newProduct.is_active}
-                    onChange={e => setNewProduct({ ...newProduct, is_active: e.target.checked })}
-                    className="text-red-600 focus:ring-red-500 rounded-sm w-4 h-4"
-                  />
-                  <label htmlFor="is_active" className="cursor-pointer">সরাসরি ল্যান্ডিং পেজে সক্রিয় করুন</label>
+                  <input type="checkbox" id="is_active" checked={newProduct.is_active} onChange={e => setNewProduct({ ...newProduct, is_active: e.target.checked })} />
+                  <label htmlFor="is_active">সক্রিয় করুন</label>
                 </div>
-
-                <div className="flex gap-2 pt-2">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-black py-2.5 rounded-lg transition"
-                  >
-                    {editingProductId ? 'আপডেট করুন' : 'আপলোড করুন'}
-                  </button>
-                  {editingProductId && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingProductId(null);
-                        setNewProduct({
-                          title: '',
-                          subtitle: '',
-                          regular_price: 2490,
-                          sale_price: 1290,
-                          discount_percentage: 48,
-                          description: '',
-                          features: '',
-                          images: '',
-                          video_url: '',
-                          delivery_charge_inside: 60,
-                          delivery_charge_outside: 120,
-                          stock_status: 'In Stock',
-                          is_active: true
-                        });
-                      }}
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold px-3 py-2.5 rounded-lg transition"
-                    >
-                      বাতিল
-                    </button>
-                  )}
-                </div>
+                <button type="submit" className="w-full bg-red-600 text-white font-black py-2.5 rounded-lg">
+                  {editingProductId ? 'আপডেট করুন' : 'আপলোড করুন'}
+                </button>
               </form>
             </div>
 
-            {/* Products Listing */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2">
               {productsLoading ? (
-                <div className="text-center py-12">
-                  <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                </div>
-              ) : products.length === 0 ? (
-                <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center text-gray-500 font-bold">
-                  কোনো পণ্য আপলোড করা হয়নি।
-                </div>
+                <div className="text-center py-12"><RefreshCw className="w-8 h-8 animate-spin mx-auto" /></div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {products.map(prod => (
-                    <div key={prod.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
-                      <div>
-                        {/* Thumbnail */}
-                        <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden mb-4 border border-gray-100">
-                          <img
-                            src={prod.images?.[0] || '/images/product-1.jpg'}
-                            alt={prod.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        {/* Title & Price */}
-                        <h4 className="font-extrabold text-sm text-gray-900 line-clamp-1">{prod.title}</h4>
-                        <p className="text-[11px] text-gray-500 font-medium line-clamp-2 mt-1">{prod.subtitle}</p>
-                        
-                        <div className="flex items-baseline space-x-2 mt-3">
-                          <span className="text-base font-black text-red-600">৳{prod.sale_price.toLocaleString()}</span>
-                          <span className="text-xs font-bold text-gray-400 line-through">৳{prod.regular_price.toLocaleString()}</span>
-                          <span className="text-[10px] font-black text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md">
-                            {prod.discount_percentage}% ছাড়
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Status and Action Buttons */}
-                      <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
-                        <button
-                          onClick={() => handleToggleProductActive(prod.id, prod.is_active)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
-                            prod.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          }`}
-                        >
-                          {prod.is_active ? 'সক্রিয় (Active)' : 'নিষ্ক্রিয় (Inactive)'}
-                        </button>
-
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => handleEditProduct(prod)}
-                            className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg transition text-xs font-bold"
-                          >
-                            সম্পাদনা
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(prod.id)}
-                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                    <div key={prod.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-2xs">
+                      <h4 className="font-extrabold text-sm line-clamp-1">{prod.title}</h4>
+                      <p className="text-red-600 font-black mt-1">৳{prod.sale_price?.toLocaleString()}</p>
+                      <div className="mt-4 flex justify-between">
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded ${prod.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100'}`}>
+                          {prod.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditProduct(prod)} className="p-1 text-gray-600"><Eye className="w-4 h-4" /></button>
+                          <button onClick={() => handleDeleteProduct(prod.id)} className="p-1 text-red-600"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </div>
                     </div>
@@ -781,99 +568,16 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {activeTab === 'stats' && (
-          <div className="space-y-6">
-            {statsLoading ? (
-              <div className="text-center py-12">
-                <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              </div>
-            ) : !stats ? (
-              <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center text-gray-500 font-bold">
-                কোনো ডেটা পাওয়া যায়নি।
-              </div>
-            ) : (
-              <>
-                {/* Stats Summary Widgets Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-2xs flex items-center space-x-4">
-                    <div className="bg-red-50 text-red-600 p-3 rounded-xl shrink-0">
-                      <DollarSign className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">মোট রাজস্ব (Revenue)</span>
-                      <span className="block font-black text-lg md:text-xl text-gray-900 mt-0.5">৳{stats.summary.totalRevenue.toLocaleString()}</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-2xs flex items-center space-x-4">
-                    <div className="bg-amber-50 text-amber-600 p-3 rounded-xl shrink-0">
-                      <ShoppingCart className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">মোট অর্ডার (Orders)</span>
-                      <span className="block font-black text-lg md:text-xl text-gray-900 mt-0.5">{stats.summary.totalOrders}টি</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-2xs flex items-center space-x-4">
-                    <div className="bg-blue-50 text-blue-600 p-3 rounded-xl shrink-0">
-                      <RefreshCw className="w-6 h-6 animate-spin" />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">পেন্ডিং অর্ডার</span>
-                      <span className="block font-black text-lg md:text-xl text-gray-900 mt-0.5">{stats.summary.pendingOrders}টি</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-2xs flex items-center space-x-4">
-                    <div className="bg-green-50 text-green-600 p-3 rounded-xl shrink-0">
-                      <Check className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">সফল ডেলিভারি</span>
-                      <span className="block font-black text-lg md:text-xl text-gray-900 mt-0.5">{stats.summary.shippedOrders}টি</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Pure CSS/SVG Sales Chart */}
-                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-2xs">
-                  <h3 className="text-sm font-black text-gray-900 mb-6 uppercase tracking-wider">বিগত ৭ দিনের সেলস চার্ট</h3>
-                  
-                  <div className="relative h-64 flex items-end justify-between space-x-4 pt-8">
-                    {stats.chartData.map((day: any, idx: number) => {
-                      const maxRevenue = Math.max(...stats.chartData.map((d: any) => d.revenue), 1000);
-                      const heightPercent = (day.revenue / maxRevenue) * 100;
-                      
-                      return (
-                        <div key={idx} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                          {/* Tooltip on hover */}
-                          <div className="absolute bottom-full mb-2 bg-gray-950 text-white text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none z-10 text-center whitespace-nowrap">
-                            <span className="block">রাজস্ব: ৳{day.revenue.toLocaleString()}</span>
-                            <span className="block">অর্ডার: {day.orders}টি</span>
-                          </div>
-
-                          {/* Bar */}
-                          <div
-                            style={{ height: `${Math.max(heightPercent, 5)}%` }}
-                            className="w-full bg-red-600 hover:bg-red-700 rounded-t-lg transition-all duration-300 relative shadow-inner"
-                          >
-                            <span className="absolute -top-6 left-0 right-0 text-center font-black text-[10px] text-gray-800">
-                              ৳{day.revenue > 0 ? `${(day.revenue / 1000).toFixed(1)}k` : '0'}
-                            </span>
-                          </div>
-
-                          {/* Label */}
-                          <span className="text-[10px] font-bold text-gray-400 mt-3 truncate max-w-[50px]">
-                            {new Date(day.date).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' })}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </>
-            )}
+        {activeTab === 'stats' && stats && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl shadow-2xs">
+              <span className="text-xs text-gray-400 font-bold uppercase">Revenue</span>
+              <span className="block text-xl font-black">৳{stats.summary.totalRevenue?.toLocaleString()}</span>
+            </div>
+            <div className="bg-white p-5 rounded-2xl shadow-2xs">
+              <span className="text-xs text-gray-400 font-bold uppercase">Orders</span>
+              <span className="block text-xl font-black">{stats.summary.totalOrders}</span>
+            </div>
           </div>
         )}
       </main>
