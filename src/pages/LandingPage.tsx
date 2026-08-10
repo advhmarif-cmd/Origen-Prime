@@ -84,7 +84,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-16 md:pb-0">
       {/* Navbar */}
-      <Navbar phone="01732669919" onOrderClick={scrollToOrderForm} />
+      <Navbar phone="01709929310" onOrderClick={scrollToOrderForm} />
 
       {/* Unified Hero Section */}
       <Hero
