@@ -29,7 +29,7 @@ export default function OrderForm({
 
   const isDates = productTitle.includes('আজওয়া') || productTitle.includes('খেজুর') || productTitle.includes('Dates');
   const activePrice = isDates 
-    ? (selectedPackage === '2kg' ? 1590 : 3690) 
+    ? (selectedPackage === '2kg' ? 2580 : 3690) 
     : salePrice;
 
   const deliveryCharge = zone === 'inside' ? deliveryInside : deliveryOutside;
