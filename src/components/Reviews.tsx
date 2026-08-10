@@ -9,7 +9,7 @@ export default function Reviews() {
       rating: 5,
       comment: 'সত্যি অসাধারণ। হুবহু ছবির মতোই প্রিমিয়াম কোয়ালিটি। ধন্যবাদ সেলারকে!',
       date: '২ দিন আগে',
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80'
     },
     {
       name: 'সাদিয়া আক্তার',
@@ -17,7 +17,7 @@ export default function Reviews() {
       rating: 5,
       comment: 'অর্ডার করার ১ দিনের মধ্যে ডেলিভারি পেয়েছি। ডেলিভারি ম্যানের সামনে খুলে দেখে নিয়েছি। খুবই সন্তুষ্ট!',
       date: '৫ দিন আগে',
-      avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150'
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'
     },
     {
       name: 'রাসেল আহমেদ',
@@ -25,7 +25,7 @@ export default function Reviews() {
       rating: 5,
       comment: 'এই বাজেটে এর চেয়ে ভালো আজওয়া খেজুর আর হতে পারে না। কম সময় লাগে। রিকমেন্ডেড!',
       date: '১ সপ্তাহ আগে',
-      avatar: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=150'
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'
     }
   ];
 
@@ -41,19 +41,16 @@ export default function Reviews() {
           {reviewsList.map((rev, idx) => (
             <div key={idx} className="bg-gray-50 p-5 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-2xs">
               <div>
-                {/* Rating Stars */}
                 <div className="flex text-amber-500 mb-3">
                   {[...Array(rev.rating)].map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-amber-500 stroke-amber-500" />
                   ))}
                 </div>
-                {/* Comment */}
                 <p className="text-gray-700 text-xs md:text-sm leading-relaxed italic mb-4">
                   "{rev.comment}"
                 </p>
               </div>
 
-              {/* Reviewer Details */}
               <div className="flex items-center space-x-3 pt-3 border-t border-gray-200/60">
                 <img
                   src={rev.avatar}
@@ -69,7 +66,6 @@ export default function Reviews() {
           ))}
         </div>
 
-        {/* Quick Review Analytics Badge */}
         <div className="mt-8 bg-green-50 border border-green-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between max-w-2xl mx-auto text-center sm:text-left gap-3">
           <div className="flex items-center space-x-3">
             <div className="bg-green-600 text-white p-2 rounded-lg">
