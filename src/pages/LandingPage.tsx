@@ -24,9 +24,9 @@ const DEFAULT_PRODUCT = {
     '৩ কেজি এবং ৫ কেজির প্রিমিয়াম ফুড-গ্রেড বক্সে আকর্ষণীয় ডিসকাউন্ট।'
   ],
   images: [
-    '/images/dates-1.jpg',
-    '/images/dates-2.jpg',
-    '/images/dates-3.jpg'
+    '/images/ajwa-dates-1.jpg',
+    '/images/ajwa-dates-2.jpg',
+    '/images/ajwa-dates-3.jpg'
   ],
   video_url: '/videos/product-video.mp4',
   delivery_charge_inside: 70,

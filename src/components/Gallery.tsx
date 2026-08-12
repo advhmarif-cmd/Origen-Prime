@@ -15,9 +15,9 @@ export default function Gallery({ images = [], videoUrl }: GalleryProps) {
   const [isMuted, setIsMuted] = useState(true);
 
   const fallbackImages = [
-    '/images/product-1.jpg',
-    '/images/product-2.jpg',
-    '/images/product-3.jpg'
+    '/images/ajwa-product-1.jpg',
+    '/images/ajwa-product-2.jpg',
+    '/images/ajwa-product-3.jpg'
   ];
 
   const galleryImages = images.length > 0 ? images : fallbackImages;
