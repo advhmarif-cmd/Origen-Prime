@@ -46,6 +46,9 @@ export default function LandingPage() {
         regularPrice={product.regular_price}
         salePrice={product.sale_price}
         images={product.images}
+        videoUrl={product.video_url}
+        stockStatus={product.stock_status}
+        discountPercentage={product.discount_percentage}
         onOrderClick={() => document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' })}
       />
       <Features description={product.description} features={product.features} />
