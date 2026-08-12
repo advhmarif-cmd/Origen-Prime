@@ -40,25 +40,9 @@ export default function LandingPage() {
   const [successOrder, setSuccessOrder] = useState<any>(null);
 
   const fetchActiveProduct = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true);
-      
-      if (error) throw error;
-
-      if (data && data.length > 0) {
-        setProduct(data[0]);
-      } else {
-        setProduct(DEFAULT_PRODUCT);
-      }
-    } catch (err) {
-      console.error('Failed to fetch active product from Supabase, using fallback:', err);
-      setProduct(DEFAULT_PRODUCT);
-    } finally {
-      setLoading(false);
-    }
+    // Forced default product to guarantee local images and content load instantly
+    setProduct(DEFAULT_PRODUCT);
+    setLoading(false);
   };
 
   useEffect(() => {
