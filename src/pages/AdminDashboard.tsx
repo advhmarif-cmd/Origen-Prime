@@ -47,7 +47,13 @@ export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'stats'>('orders');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'stats' | 'settings'>('orders');
+  const [settings, setSettings] = useState({
+    showReviews: true,
+    showVideo: true,
+    pixelId: '',
+    themeColor: '#dc2626'
+  });
 
   const [products, setProducts] = useState<any[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
