@@ -1,3 +1,4 @@
+import { supabase } from "../lib/supabase";
 import React, { useState, useEffect } from 'react';
 import {
   Package,
@@ -17,6 +18,32 @@ import {
 } from 'lucide-react';
 
 export default function AdminDashboard() {
+  const handleFileUpload = async (file: File, folder: string) => {
+    try {
+      setProductsLoading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${folder}/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Upload error:', error);
+      return null;
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
 
   const handleFileUpload = async (file: File, folder: string) => {
     try {
