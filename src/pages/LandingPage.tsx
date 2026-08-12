@@ -18,38 +18,36 @@ export default function LandingPage() {
     const fetchProduct = async () => {
       setLoading(true);
       const targetSlug = slug || 'default-product';
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('products')
         .select('*')
         .eq('slug', targetSlug)
         .single();
 
-      if (data) {
-        setProduct(data as Product);
-      } else {
-        console.error('Error fetching product:', error);
-      }
+      if (data) setProduct(data as Product);
       setLoading(false);
     };
     fetchProduct();
   }, [slug]);
+
+  const scrollToOrder = () => document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' });
 
   if (loading) return <div className="flex justify-center items-center h-screen">লোড হচ্ছে...</div>;
   if (!product) return <div className="text-center p-10">প্রোডাক্ট পাওয়া যায়নি</div>;
 
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-16">
-      <Navbar phone="01709929310" />
+      <Navbar phone="01709929310" onOrderClick={scrollToOrder} />
       <Hero 
         title={product.title} 
         subtitle={product.subtitle} 
-        regularPrice={product.regular_price}
-        salePrice={product.sale_price}
+        regularPrice={Number(product.regular_price)}
+        salePrice={Number(product.sale_price)}
+        discountPercentage={Number(product.discount_percentage || 0)}
+        stockStatus={product.stock_status}
         images={product.images}
         videoUrl={product.video_url}
-        stockStatus={product.stock_status}
-        discountPercentage={product.discount_percentage}
-        onOrderClick={() => document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' })}
+        onOrderClick={scrollToOrder}
       />
       <Features description={product.description} features={product.features} />
       <div id="order-form-section">
