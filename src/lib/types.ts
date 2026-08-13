@@ -14,4 +14,5 @@ export interface Product {
   delivery_charge_outside: number;
   stock_status: string;
   created_at: string;
+  category?: string;
 }

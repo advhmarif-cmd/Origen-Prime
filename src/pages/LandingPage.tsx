@@ -22,7 +22,7 @@ export default function LandingPage() {
 
   const scrollToOrder = () => document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' });
 
-  if (!product) return <div>লোড হচ্ছে...</div>;
+  if (!product) return <div className="flex h-screen items-center justify-center">লোড হচ্ছে...</div>;
 
   return (
     <div className="pb-20">
@@ -30,7 +30,7 @@ export default function LandingPage() {
       <Hero {...product} regularPrice={product.regular_price} salePrice={product.sale_price} onOrderClick={scrollToOrder} />
       <Features description={product.description} features={product.features} />
       <div id="order-form-section"><OrderForm productId={product.id} /></div>
-      <StickyCTA onClick={scrollToOrder} />
+      <StickyCTA title={product.title} />
     </div>
   );
 }
