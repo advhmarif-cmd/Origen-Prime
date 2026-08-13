@@ -27,8 +27,18 @@ export default function LandingPage() {
   return (
     <div className="pb-20">
       <Navbar phone="01709929310" onOrderClick={scrollToOrder} />
-      <Hero {...product} regularPrice={product.regular_price} salePrice={product.sale_price} onOrderClick={scrollToOrder} />
-      <Features description={product.description} features={product.features} />
+      <Hero 
+        title={product.title} 
+        subtitle={product.subtitle} 
+        regularPrice={Number(product.regular_price || 0)}
+        salePrice={Number(product.sale_price || 0)}
+        discountPercentage={Number(product.discount_percentage || 0)}
+        stockStatus={String(product.stock_status || 'In Stock')}
+        images={product.images || []}
+        videoUrl={product.video_url || undefined}
+        onOrderClick={scrollToOrder}
+      />
+      <Features description={product.description} features={product.features || []} />
       <div id="order-form-section"><OrderForm productId={product.id} /></div>
       <StickyCTA title={product.title} />
     </div>
