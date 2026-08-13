@@ -30,15 +30,15 @@ export default function LandingPage() {
       <Hero 
         title={product.title} 
         subtitle={product.subtitle} 
-        regularPrice={Number(product.regular_price || 0)}
-        salePrice={Number(product.sale_price || 0)}
-        discountPercentage={Number(product.discount_percentage || 0)}
-        stockStatus={String(product.stock_status || 'In Stock')}
-        images={product.images || []}
-        videoUrl={product.video_url || undefined}
+        regularPrice={product.regular_price}
+        salePrice={product.sale_price}
+        discountPercentage={product.discount_percentage}
+        stockStatus={product.stock_status}
+        images={product.images}
+        videoUrl={product.video_url}
         onOrderClick={scrollToOrder}
       />
-      <Features description={product.description} features={product.features || []} />
+      <Features description={product.description} features={product.features} />
       <div id="order-form-section"><OrderForm productId={product.id} /></div>
       <StickyCTA title={product.title} />
     </div>
