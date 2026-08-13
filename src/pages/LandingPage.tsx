@@ -82,6 +82,7 @@ export default function LandingPage() {
 
       <Navbar 
         phone={product.phone_number || '01700000000'} 
+        logoUrl={product.logo_url}
         badges={product.navbar_badges}
         onOrderClick={scrollToOrder} 
       />
@@ -99,7 +100,6 @@ export default function LandingPage() {
         onOrderClick={scrollToOrder}
       />
 
-      {/* Add to Cart Floating Option or Button can be added here */}
       <div className="max-w-6xl mx-auto px-4 -mt-8 relative z-10 hidden md:block">
         <button 
           onClick={() => addToCart(product)}
@@ -135,10 +135,9 @@ export default function LandingPage() {
         />
       </div>
 
+      {/* FIXED: Passing full product object */}
       <StickyCTA 
-        productTitle={product.title}
-        salePrice={product.sale_price} 
-        whatsappNumber={product.phone_number}
+        product={product}
         onOrderClick={scrollToOrder} 
       />
 

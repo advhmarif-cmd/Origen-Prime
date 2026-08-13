@@ -33,6 +33,7 @@ export interface Product {
   category?: string;
   
   // Full Page Control Fields
+  logo_url?: string;
   navbar_badges: string[];
   trust_badges: TrustBadge[];
   promo_tagline: string;

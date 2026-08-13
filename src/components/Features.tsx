@@ -5,7 +5,7 @@ import { TrustBadge } from '../lib/types';
 interface FeaturesProps {
   description?: string;
   features?: string[];
-  trustBadges?: TrustBadge[];
+  trust_badges?: TrustBadge[];
 }
 
 const IconMap = {
@@ -16,7 +16,7 @@ const IconMap = {
   HeartHandshake
 };
 
-export default function Features({ description, features, trustBadges }: FeaturesProps) {
+export default function Features({ description, features, trust_badges }: FeaturesProps) {
   const displayFeatures = features || [];
 
   const defaultTrustBadges: TrustBadge[] = [
@@ -26,7 +26,7 @@ export default function Features({ description, features, trustBadges }: Feature
     { icon: 'CheckCircle2', title: '১০০% আসল পণ্য', subtitle: 'সেরা মান নিশ্চিত' }
   ];
 
-  const displayTrustBadges = trustBadges && trustBadges.length > 0 ? trustBadges : defaultTrustBadges;
+  const displayTrustBadges = trust_badges && trust_badges.length > 0 ? trust_badges : defaultTrustBadges;
 
   return (
     <section className="py-10 bg-gray-50 border-b border-gray-100">

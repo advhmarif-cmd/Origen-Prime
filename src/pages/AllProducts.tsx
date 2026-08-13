@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../lib/supabase';
 import { Product } from '../lib/types';
-import { ShoppingBag, ChevronRight, Filter } from 'lucide-react';
+import { ShoppingBag, ChevronRight, Filter, Package } from 'lucide-react';
 import Navbar from '../components/Navbar';
 
 export default function AllProducts() {
@@ -10,18 +11,22 @@ export default function AllProducts() {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [siteSettings, setSiteSettings] = useState<Partial<Product>>({});
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-    if (data) {
-      setProducts(data as Product[]);
-      const cats = Array.from(new Set(data.map((p: any) => p.category).filter(Boolean))) as string[];
+    const { data: productsData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+    if (productsData) {
+      setProducts(productsData as Product[]);
+      const cats = Array.from(new Set(productsData.map((p: any) => p.category).filter(Boolean))) as string[];
       setCategories(['All', ...cats]);
+
+      const defaultProd = productsData.find((p: any) => p.slug === 'default-product') || productsData[0];
+      if (defaultProd) setSiteSettings(defaultProd);
     }
     setLoading(false);
   };
@@ -32,20 +37,29 @@ export default function AllProducts() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <Navbar phone="01709929310" onOrderClick={() => {}} />
+      <Helmet>
+        <title>আমাদের সকল পণ্যসমূহ - ORIGEN PRIME</title>
+        <meta name="description" content="ORIGEN PRIME-এর প্রিমিয়াম কোয়ালিটি পণ্যসমূহ দেখুন এবং সরাসরি অর্ডার করুন।" />
+      </Helmet>
+
+      <Navbar 
+        phone={siteSettings.phone_number || "01700000000"} 
+        logoUrl={siteSettings.logo_url}
+        badges={siteSettings.navbar_badges}
+        onOrderClick={() => {}} 
+      />
       
-      {/* Category Filter Bar */}
-      <div className="bg-white border-b sticky top-16 z-30">
+      <div className="bg-white border-b sticky top-[64px] z-30 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-1">
-            <Filter className="w-4 h-4 text-gray-400 shrink-0" />
+            <Filter className="w-4 h-4 text-red-600 shrink-0" />
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider transition whitespace-nowrap ${
+                className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition whitespace-nowrap ${
                   selectedCategory === cat 
-                  ? 'bg-red-600 text-white shadow-md' 
+                  ? 'bg-red-600 text-white shadow-lg' 
                   : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                 }`}
               >
@@ -56,56 +70,59 @@ export default function AllProducts() {
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-6xl mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-10">
           <div>
-            <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter italic">আমাদের <span className="text-red-600">পণ্যসমূহ</span></h1>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Premium Quality Guaranteed</p>
-          </div>
-          <div className="text-[10px] font-black text-gray-400 uppercase">
-            {filteredProducts.length} টি পণ্য পাওয়া গেছে
+            <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter italic">
+              আমাদের <span className="text-red-600">সংগ্রহ</span>
+            </h1>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">এক্সক্লুসিভ কোয়ালিটি নিশ্চিত</p>
           </div>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl h-64 animate-pulse border border-gray-100"></div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-3xl h-72 animate-pulse border border-gray-100"></div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
             {filteredProducts.map(product => (
               <Link 
                 key={product.id} 
                 to={`/${product.slug}`}
-                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col"
+                className="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-xs hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col"
               >
-                <div className="aspect-square relative overflow-hidden bg-gray-100">
+                <div className="aspect-square relative overflow-hidden bg-gray-50">
                   <img 
-                    src={product.images[0] || 'https://via.placeholder.com/400'} 
+                    src={product.images?.[0] || 'https://via.placeholder.com/400x400?text=No+Image'} 
                     alt={product.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                    onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Not+Found'; }}
                   />
                   {product.discount_percentage > 0 && (
-                    <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase">
+                    <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black px-2.5 py-1.5 rounded-xl uppercase shadow-lg">
                       {product.discount_percentage}% ছাড়
                     </div>
                   )}
                 </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <span className="text-[8px] font-black text-red-600 uppercase tracking-widest mb-1">{product.category || 'Premium'}</span>
-                  <h3 className="font-black text-gray-900 text-sm line-clamp-2 leading-tight mb-2 group-hover:text-red-600 transition">{product.title}</h3>
+                <div className="p-5 flex-1 flex flex-col">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span>
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{product.category || 'Premium'}</span>
+                  </div>
+                  <h3 className="font-black text-gray-900 text-sm md:text-base line-clamp-2 leading-tight mb-4 group-hover:text-red-600 transition">{product.title}</h3>
                   
-                  <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-50">
+                  <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-50">
                     <div>
-                      <span className="block text-[10px] font-black text-red-600">৳{product.sale_price.toLocaleString()}</span>
+                      <span className="block text-sm md:text-lg font-black text-red-600">৳{product.sale_price.toLocaleString()}</span>
                       {product.regular_price > product.sale_price && (
-                        <span className="block text-[8px] font-bold text-gray-400 line-through">৳{product.regular_price.toLocaleString()}</span>
+                        <span className="block text-[10px] font-bold text-gray-300 line-through italic">৳{product.regular_price.toLocaleString()}</span>
                       )}
                     </div>
-                    <div className="bg-gray-900 text-white p-2 rounded-lg group-hover:bg-red-600 transition">
-                      <ChevronRight className="w-3 h-3" />
+                    <div className="bg-gray-900 text-white p-2.5 rounded-2xl group-hover:bg-red-600 transition shadow-lg">
+                      <ChevronRight className="w-4 h-4" />
                     </div>
                   </div>
                 </div>
@@ -115,20 +132,23 @@ export default function AllProducts() {
         )}
 
         {!loading && filteredProducts.length === 0 && (
-          <div className="text-center py-20">
-            <ShoppingBag className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-400 font-bold uppercase text-xs tracking-widest">এই ক্যাটাগরিতে কোনো পণ্য নেই</p>
+          <div className="text-center py-32 bg-white rounded-[40px] border-2 border-dashed border-gray-100">
+            <Package className="w-16 h-16 text-gray-100 mx-auto mb-4" />
+            <p className="text-gray-400 font-black uppercase text-xs tracking-widest">এই ক্যাটাগরিতে কোনো পণ্য পাওয়া যায়নি</p>
           </div>
         )}
       </main>
 
-      <footer className="py-12 bg-gray-950 text-white text-center mt-20">
-        <div className="font-black text-xl tracking-tighter italic mb-2 uppercase">
-          ORIGEN<span className="text-red-600">PRIME</span>
+      <footer className="py-20 bg-gray-950 text-white text-center">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="font-black text-3xl tracking-tighter italic mb-4 uppercase">
+            ORIGEN<span className="text-red-600">PRIME</span>
+          </div>
+          <div className="w-10 h-1 bg-red-600 mx-auto mb-6 rounded-full"></div>
+          <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] opacity-40 max-w-xs mx-auto leading-relaxed">
+            &copy; {new Date().getFullYear()} ALL RIGHTS RESERVED.
+          </p>
         </div>
-        <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] opacity-50">
-          Premium Dynamic Shopping Experience
-        </p>
       </footer>
     </div>
   );
