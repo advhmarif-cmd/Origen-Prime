@@ -1,3 +1,18 @@
+export interface Review {
+  name: string;
+  location: string;
+  rating: number;
+  comment: string;
+  date: string;
+  avatar: string;
+}
+
+export interface TrustBadge {
+  icon: 'Truck' | 'ShieldCheck' | 'RotateCcw' | 'CheckCircle2' | 'HeartHandshake';
+  title: string;
+  subtitle: string;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -13,6 +28,18 @@ export interface Product {
   delivery_charge_inside: number;
   delivery_charge_outside: number;
   stock_status: string;
-  created_at: string;
+  reviews: Review[];
+  phone_number: string;
   category?: string;
+  
+  // Full Page Control Fields
+  navbar_badges: string[];
+  trust_badges: TrustBadge[];
+  promo_tagline: string;
+  satisfaction_record: string;
+  satisfaction_subtext: string;
+  success_count_text: string;
+  
+  created_at: string;
+  updated_at?: string;
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../lib/supabase';
 import { Product } from '../lib/types';
 import Navbar from '../components/Navbar';
@@ -9,12 +10,14 @@ import Reviews from '../components/Reviews';
 import OrderForm from '../components/OrderForm';
 import SuccessModal from '../components/SuccessModal';
 import StickyCTA from '../components/StickyCTA';
+import { useCart } from '../context/CartContext';
 
 export default function LandingPage() {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [successOrder, setSuccessOrder] = useState<any>(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -58,14 +61,25 @@ export default function LandingPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-10 bg-gray-50 text-center">
         <h1 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter italic">দুঃখিত! প্রোডাক্টটি পাওয়া যায়নি।</h1>
-        <p className="text-gray-600 mb-6 font-bold uppercase text-xs tracking-widest">ইউআরএল চেক করুন অথবা অ্যাডমিন প্যানেল থেকে তৈরি করুন।</p>
-        <a href="/admin" className="bg-red-600 text-white px-8 py-3 rounded-xl font-black shadow-lg active:scale-95 transition">অ্যাডমিন প্যানেল</a>
+        <div className="flex gap-4">
+          <Link to="/" className="bg-gray-900 text-white px-8 py-3 rounded-xl font-black shadow-lg">সব পণ্য দেখুন</Link>
+          <Link to="/admin" className="bg-red-600 text-white px-8 py-3 rounded-xl font-black shadow-lg">অ্যাডমিন প্যানেল</Link>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-20 md:pb-0 font-sans selection:bg-red-100 selection:text-red-900">
+      <Helmet>
+        <title>{product.title} - ORIGEN PRIME</title>
+        <meta name="description" content={product.description?.substring(0, 160)} />
+        <meta property="og:title" content={product.title} />
+        <meta property="og:description" content={product.subtitle} />
+        <meta property="og:image" content={product.images?.[0]} />
+        <meta property="og:type" content="product" />
+      </Helmet>
+
       <Navbar 
         phone={product.phone_number || '01700000000'} 
         badges={product.navbar_badges}
@@ -84,6 +98,16 @@ export default function LandingPage() {
         promoTagline={product.promo_tagline}
         onOrderClick={scrollToOrder}
       />
+
+      {/* Add to Cart Floating Option or Button can be added here */}
+      <div className="max-w-6xl mx-auto px-4 -mt-8 relative z-10 hidden md:block">
+        <button 
+          onClick={() => addToCart(product)}
+          className="bg-gray-900 text-white px-8 py-4 rounded-2xl font-black shadow-2xl hover:bg-black transition active:scale-95 flex items-center gap-3"
+        >
+          কার্টে যোগ করুন
+        </button>
+      </div>
 
       <Features 
         description={product.description} 
@@ -112,7 +136,9 @@ export default function LandingPage() {
       </div>
 
       <StickyCTA 
+        productTitle={product.title}
         salePrice={product.sale_price} 
+        whatsappNumber={product.phone_number}
         onOrderClick={scrollToOrder} 
       />
 
@@ -129,7 +155,7 @@ export default function LandingPage() {
             ORIGEN<span className="text-red-600">PRIME</span>
           </div>
           <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] opacity-50">
-            &copy; {new Date().getFullYear()} ALL RIGHTS RESERVED. POWERED BY AGENTIC AUTOMATION.
+            &copy; {new Date().getFullYear()} ALL RIGHTS RESERVED.
           </p>
         </div>
       </footer>
