@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircle, Printer, ShoppingBag, X } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 interface SuccessModalProps {
   order: any;
@@ -43,7 +44,7 @@ export default function SuccessModal({ order, onClose }: SuccessModalProps) {
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <div className="flex items-center space-x-2">
               <img
-                src="/images/logo.png"
+                src={logo}
                 alt="ORIGEN PRIME"
                 className="h-9 w-9 object-cover rounded-lg border border-gray-100"
               />
@@ -59,12 +60,12 @@ export default function SuccessModal({ order, onClose }: SuccessModalProps) {
           <div className="flex justify-between items-center bg-gray-50 border border-gray-100 rounded-xl p-3 text-xs font-bold text-gray-700">
             <div>
               <span className="block text-gray-400">অর্ডার নাম্বার</span>
-              <span className="text-sm text-gray-900 font-mono">#{order.id}</span>
+              <span className="text-sm text-gray-900 font-mono">#{order.id || 'N/A'}</span>
             </div>
             <div className="text-right">
               <span className="block text-gray-400">অর্ডারের তারিখ</span>
               <span className="text-sm text-gray-900">
-                {new Date(order.created_at).toLocaleDateString('bn-BD', {
+                {new Date(order.created_at || new Date()).toLocaleDateString('bn-BD', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -109,11 +110,11 @@ export default function SuccessModal({ order, onClose }: SuccessModalProps) {
                   <span className="text-gray-900 font-extrabold">
                     {order.product_title} <span className="text-gray-400">x {order.quantity}</span>
                   </span>
-                  <span>৳{((order.total_amount - order.delivery_charge)).toLocaleString()}</span>
+                  <span>৳{((order.total_amount - (order.delivery_charge || 0))).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">ডেলিভারি চার্জ:</span>
-                  <span>৳{order.delivery_charge}</span>
+                  <span>৳{order.delivery_charge || 0}</span>
                 </div>
                 <div className="flex justify-between border-t border-gray-100 pt-2.5 text-sm font-black text-gray-950">
                   <span>সর্বমোট বিল:</span>

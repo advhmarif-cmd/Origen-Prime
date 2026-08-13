@@ -14,18 +14,25 @@ export default function Gallery({ images = [], videoUrl }: GalleryProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
-  const fallbackImages = [
-    '/images/ajwa-product-1.jpg',
-    '/images/ajwa-product-2.jpg',
-    '/images/ajwa-product-3.jpg'
-  ];
-
-  const galleryImages = images.length > 0 ? images : fallbackImages;
-  const videoSource = videoUrl || '/videos/product-video.mp4';
+  if (images.length === 0 && !videoUrl) return null;
 
   const handleMediaChange = (type: 'image' | 'video', url: string) => {
     setActiveMedia({ type, url });
     setIsPlaying(false);
+  };
+
+  const isYouTube = (url: string) => url && (url.includes('youtube.com') || url.includes('youtu.be'));
+
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    if (isYouTube(url)) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      if (match && match[2].length === 11) {
+        return `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=1&rel=0`;
+      }
+    }
+    return url;
   };
 
   const togglePlay = (videoEl: HTMLVideoElement | null) => {
@@ -51,43 +58,49 @@ export default function Gallery({ images = [], videoUrl }: GalleryProps) {
         <div className="relative aspect-video max-w-3xl mx-auto bg-gray-950 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
           {activeMedia.type === 'video' ? (
             <div className="relative w-full h-full">
-              <video
-                id="gallery-video"
-                src={activeMedia.url}
-                className="w-full h-full object-cover"
-                loop
-                muted={isMuted}
-                playsInline
-                onClick={(e) => togglePlay(e.currentTarget)}
-              />
-              {/* Play/Pause Overlay Button */}
-              {!isPlaying && (
-                <button
-                  onClick={() => {
-                    const el = document.getElementById('gallery-video') as HTMLVideoElement;
-                    togglePlay(el);
-                  }}
-                  className="absolute inset-0 m-auto w-16 h-16 bg-red-600/90 text-white rounded-full flex items-center justify-center shadow-lg transition transform hover:scale-110"
-                >
-                  <Play className="w-8 h-8 fill-white ml-1" />
-                </button>
+              {isYouTube(activeMedia.url) ? (
+                <iframe
+                  src={getEmbedUrl(activeMedia.url)}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="Product Video"
+                ></iframe>
+              ) : (
+                <>
+                  <video
+                    id="gallery-video"
+                    src={activeMedia.url}
+                    className="w-full h-full object-cover"
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    onClick={(e) => togglePlay(e.currentTarget)}
+                  />
+                  {!isPlaying && (
+                    <button
+                      onClick={() => {
+                        const el = document.getElementById('gallery-video') as HTMLVideoElement;
+                        togglePlay(el);
+                      }}
+                      className="absolute inset-0 m-auto w-16 h-16 bg-red-600/90 text-white rounded-full flex items-center justify-center shadow-lg transition transform hover:scale-110"
+                    >
+                      <Play className="w-8 h-8 fill-white ml-1" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition"
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  </button>
+                </>
               )}
-              {/* Sound Toggle */}
-              <button
-                onClick={() => setIsMuted(!isMuted)}
-                className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition"
-              >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-              <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider flex items-center">
-                <Video className="w-3.5 h-3.5 mr-1" />
-                পণ্যটির ভিডিও
-              </div>
             </div>
           ) : (
             <img
-              src={activeMedia.url}
-              alt="Active Product Thumbnail"
+              src={activeMedia.url || 'https://via.placeholder.com/800x450?text=No+Image+Available'}
+              alt="Product"
               className="w-full h-full object-cover transition duration-300"
             />
           )}
@@ -95,8 +108,7 @@ export default function Gallery({ images = [], videoUrl }: GalleryProps) {
 
         {/* Thumbnails Navigation Row */}
         <div className="flex flex-wrap justify-center gap-2.5 mt-4">
-          {/* Images Thumbnails */}
-          {galleryImages.map((img, idx) => (
+          {images.map((img, idx) => (
             <button
               key={idx}
               onClick={() => handleMediaChange('image', img)}
@@ -110,10 +122,9 @@ export default function Gallery({ images = [], videoUrl }: GalleryProps) {
             </button>
           ))}
 
-          {/* Video Thumbnail (if video exists) */}
-          {videoSource && (
+          {videoUrl && (
             <button
-              onClick={() => handleMediaChange('video', videoSource)}
+              onClick={() => handleMediaChange('video', videoUrl)}
               className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 bg-gray-950 flex flex-col items-center justify-center transition ${
                 activeMedia.type === 'video'
                   ? 'border-red-600 scale-105 shadow-md'
