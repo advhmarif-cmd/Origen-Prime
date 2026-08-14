@@ -109,10 +109,11 @@ export default function LandingPage() {
         </button>
       </div>
 
+      {/* FIXED: Using trust_badges to match component props */}
       <Features 
         description={product.description} 
         features={product.features} 
-        trustBadges={product.trust_badges}
+        trust_badges={product.trust_badges}
       />
 
       {product.reviews && product.reviews.length > 0 && (
@@ -135,7 +136,6 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* FIXED: Passing full product object */}
       <StickyCTA 
         product={product}
         onOrderClick={scrollToOrder} 
