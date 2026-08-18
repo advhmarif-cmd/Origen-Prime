@@ -1,3 +1,4 @@
+import { SITE_CONFIG } from "../lib/config";
 import React, { useState } from 'react';
 import { Phone, ShoppingCart, ShoppingBag, X, Trash2, MessageCircle, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';

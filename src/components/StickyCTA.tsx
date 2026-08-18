@@ -1,3 +1,4 @@
+import { SITE_CONFIG } from "../lib/config";
 import React from 'react';
 import { MessageCircle, ShoppingCart, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
