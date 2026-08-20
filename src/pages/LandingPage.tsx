@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { supabase } from '../lib/supabase';
 import { Product } from '../lib/types';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
@@ -24,17 +23,10 @@ export default function LandingPage() {
       setLoading(true);
       const targetSlug = slug || 'default-product';
       try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('slug', targetSlug)
-          .single();
-
-        if (data) {
-          setProduct(data as Product);
-        } else {
-          console.error('Error fetching product:', error);
-        }
+        const response = await fetch(`/api/products?slug=${encodeURIComponent(targetSlug)}`);
+        if (!response.ok) throw new Error('Product not found');
+        const data = await response.json();
+        setProduct(data as Product);
       } catch (err) {
         console.error('Fetch error:', err);
       } finally {
@@ -63,7 +55,6 @@ export default function LandingPage() {
         <h1 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter italic">দুঃখিত! প্রোডাক্টটি পাওয়া যায়নি।</h1>
         <div className="flex gap-4">
           <Link to="/" className="bg-gray-900 text-white px-8 py-3 rounded-xl font-black shadow-lg">সব পণ্য দেখুন</Link>
-          <Link to="/admin" className="bg-red-600 text-white px-8 py-3 rounded-xl font-black shadow-lg">অ্যাডমিন প্যানেল</Link>
         </div>
       </div>
     );

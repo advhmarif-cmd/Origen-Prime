@@ -142,7 +142,8 @@ export default function Navbar({ phone, logoUrl, badges, onOrderClick }: NavbarP
                     <span>WhatsApp</span>
                   </button>
                   <Link 
-                    to="/admin" // Change to a real checkout page if you create one
+                    to="/checkout"
+                    onClick={() => setIsCartOpen(false)}
                     className="bg-gray-900 hover:bg-black text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition active:scale-95"
                   >
                     <span>অর্ডার করুন</span>

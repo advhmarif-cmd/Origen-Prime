@@ -55,35 +55,28 @@ export default function OrderForm({
     setLoading(true);
 
     try {
-      // Logic for submitting order
-      const orderData = {
-        customer_name: name,
-        customer_phone: phone,
-        customer_address: address,
-        delivery_zone: zone,
-        delivery_charge: deliveryCharge,
-        product_id: productId,
-        product_title: productTitle,
-        quantity,
-        total_amount: grandTotal,
-        status: 'pending',
-        created_at: new Date().toISOString()
-      };
-
-      // Simulating API call as per requirements
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({
+          customer_name: name.trim(),
+          customer_phone: phone.trim(),
+          customer_address: address.trim(),
+          delivery_zone: zone,
+          items: [{ product_id: productId, quantity }],
+        })
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        onOrderSuccess(data);
-      } else {
-        // Fallback for demo
-        onOrderSuccess(orderData);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'অর্ডার সাবমিট করা যায়নি।');
       }
+
+      const confirmedOrder = Array.isArray(data.orders) ? data.orders[0] : data;
+      if (!confirmedOrder?.id) {
+        throw new Error('অর্ডার কনফার্মেশন পাওয়া যায়নি।');
+      }
+      onOrderSuccess(confirmedOrder);
 
       setName('');
       setPhone('');

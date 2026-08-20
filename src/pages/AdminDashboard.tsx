@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import React, { useState } from 'react';
 import { Product } from '../lib/types';
 import { Plus, Edit2, Trash2, ExternalLink, RefreshCw, Code, X, Check, AlertCircle, Loader2 } from 'lucide-react';
 import ProductEditor from '../components/ProductEditor';
@@ -60,49 +59,72 @@ export default function AdminDashboard() {
   const [showJsonModal, setShowJsonModal] = useState(false);
   const [jsonText, setJsonText] = useState('');
 
-  const handleLogin = () => {
-    if (password === 'admin123') {
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin-login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (!response.ok) throw new Error('ভুল পাসওয়ার্ড!');
       setIsAuthenticated(true);
-      fetchProducts();
-    } else {
-      alert('ভুল পাসওয়ার্ড!');
+      await fetchProducts();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'লগইন ব্যর্থ হয়েছে');
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchProducts = async () => {
     setLoading(true);
-    const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-    if (data) setProducts(data as Product[]);
-    setLoading(false);
+    try {
+      const response = await fetch('/api/products?all=true', { credentials: 'include' });
+      if (response.status === 401) {
+        setIsAuthenticated(false);
+        throw new Error('Admin authentication required');
+      }
+      if (!response.ok) throw new Error('পণ্য লোড করা যায়নি');
+      const data = await response.json();
+      setProducts((data || []) as Product[]);
+    } catch (error) {
+      console.error('Product load error:', error);
+      if (error instanceof Error && error.message !== 'Admin authentication required') alert(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const saveProduct = async (productData: Partial<Product>) => {
     setLoading(true);
-    let error;
     
     const dataToSave = {
       ...productData,
       updated_at: new Date().toISOString()
     };
 
-    if (productData.id) {
-      const { error: err } = await supabase.from('products').update(dataToSave).eq('id', productData.id);
-      error = err;
-    } else {
-      const { error: err } = await supabase.from('products').insert([dataToSave]);
-      error = err;
-    }
-
-    if (error) {
-      console.error('Save error:', error);
-      alert('Error: ' + error.message);
-      setLoading(false);
-      return false;
-    } else {
+    try {
+      const response = await fetch('/api/products', {
+        method: productData.id ? 'PUT' : 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSave),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'পণ্য সেভ করা যায়নি');
+      }
       setEditingProduct(null);
-      fetchProducts();
-      setLoading(false);
+      await fetchProducts();
       return true;
+    } catch (saveError) {
+      console.error('Save error:', saveError);
+      alert(saveError instanceof Error ? saveError.message : 'পণ্য সেভ করা যায়নি');
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,8 +153,14 @@ export default function AdminDashboard() {
 
   const deleteProduct = async (id: string) => {
     if (confirm('আপনি কি নিশ্চিত?')) {
-      await supabase.from('products').delete().eq('id', id);
-      fetchProducts();
+      const response = await fetch('/api/products', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (!response.ok) throw new Error('পণ্য মুছে ফেলা যায়নি');
+      await fetchProducts();
     }
   };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { supabase } from '../lib/supabase';
 import { Product } from '../lib/types';
 import { ShoppingBag, ChevronRight, Filter, Package } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -12,6 +11,7 @@ export default function AllProducts() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [siteSettings, setSiteSettings] = useState<Partial<Product>>({});
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -19,16 +19,22 @@ export default function AllProducts() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: productsData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-    if (productsData) {
-      setProducts(productsData as Product[]);
-      const cats = Array.from(new Set(productsData.map((p: any) => p.category).filter(Boolean))) as string[];
+    setError('');
+    try {
+      const response = await fetch('/api/products?active=true');
+      if (!response.ok) throw new Error('পণ্য লোড করা যায়নি');
+      const productsData = await response.json();
+      setProducts((productsData || []) as Product[]);
+      const cats = Array.from(new Set((productsData || []).map((p: Product) => p.category).filter(Boolean))) as string[];
       setCategories(['All', ...cats]);
-
-      const defaultProd = productsData.find((p: any) => p.slug === 'default-product') || productsData[0];
+      const defaultProd = (productsData || []).find((p: Product) => p.slug === 'default-product') || productsData?.[0];
       if (defaultProd) setSiteSettings(defaultProd);
+    } catch (fetchError) {
+      console.error('Product load error:', fetchError);
+      setError(fetchError instanceof Error ? fetchError.message : 'পণ্য লোড করা যায়নি');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const filteredProducts = selectedCategory === 'All' 
@@ -79,6 +85,10 @@ export default function AllProducts() {
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">এক্সক্লুসিভ কোয়ালিটি নিশ্চিত</p>
           </div>
         </div>
+
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-5 font-bold mb-6">{error}</div>
+        )}
 
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
