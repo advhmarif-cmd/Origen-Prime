@@ -19,7 +19,8 @@ export default function ProductEditor({ product, onSave, onCancel, loading }: Pr
     features: product.features || [],
     images: product.images || [],
     category: product.category || 'Dates',
-    logo_url: product.logo_url || ''
+    logo_url: product.logo_url || '',
+    is_active: product.is_active !== false,
   });
 
   const [uploading, setUploading] = React.useState<string | null>(null);
@@ -154,6 +155,18 @@ export default function ProductEditor({ product, onSave, onCancel, loading }: Pr
                   <label className="block text-[10px] font-black uppercase text-gray-500 mb-1">Product Title</label>
                   <input className="w-full border-2 border-gray-200 rounded-xl p-2.5 font-bold" value={editingProduct.title} onChange={e => setEditingProduct({...editingProduct, title: e.target.value})} />
                 </div>
+                <label className="flex cursor-pointer items-center justify-between rounded-xl border-2 border-gray-200 bg-white p-3">
+                  <span>
+                    <span className="block text-[10px] font-black uppercase text-gray-500">Public visibility</span>
+                    <span className="text-xs font-bold text-gray-400">Landing page ও Paikari sync-এ দেখাবে</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={editingProduct.is_active !== false}
+                    onChange={e => setEditingProduct({ ...editingProduct, is_active: e.target.checked })}
+                    className="h-5 w-5 accent-green-600"
+                  />
+                </label>
                 <div>
                   <label className="block text-[10px] font-black uppercase text-gray-500 mb-1">Promo Tagline</label>
                   <input className="w-full border-2 border-gray-200 rounded-xl p-2.5 font-bold" value={editingProduct.promo_tagline} onChange={e => setEditingProduct({...editingProduct, promo_tagline: e.target.value})} />
@@ -166,6 +179,19 @@ export default function ProductEditor({ product, onSave, onCancel, loading }: Pr
               <div className="grid grid-cols-2 gap-3">
                 <input type="number" placeholder="Regular" className="w-full border-2 border-gray-200 rounded-xl p-2.5 font-bold" value={editingProduct.regular_price} onChange={e => setEditingProduct({...editingProduct, regular_price: Number(e.target.value)})} />
                 <input type="number" placeholder="Sale" className="w-full border-2 border-gray-200 rounded-xl p-2.5 font-bold" value={editingProduct.sale_price} onChange={e => setEditingProduct({...editingProduct, sale_price: Number(e.target.value)})} />
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+              <h3 className="text-sm font-black uppercase text-gray-400 mb-4 flex items-center">Delivery Settings</h3>
+              <p className="mb-3 text-[10px] font-bold leading-relaxed text-gray-400">এই charge server-side checkout total-এ ব্যবহার হবে।</p>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="text-[10px] font-black text-gray-500">Inside ৳
+                  <input type="number" min="0" className="mt-1 w-full border-2 border-gray-200 rounded-xl p-2.5 font-bold" value={editingProduct.delivery_charge_inside ?? 0} onChange={e => setEditingProduct({...editingProduct, delivery_charge_inside: Number(e.target.value)})} />
+                </label>
+                <label className="text-[10px] font-black text-gray-500">Outside ৳
+                  <input type="number" min="0" className="mt-1 w-full border-2 border-gray-200 rounded-xl p-2.5 font-bold" value={editingProduct.delivery_charge_outside ?? 0} onChange={e => setEditingProduct({...editingProduct, delivery_charge_outside: Number(e.target.value)})} />
+                </label>
               </div>
             </div>
           </div>
