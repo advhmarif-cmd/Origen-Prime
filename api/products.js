@@ -40,13 +40,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Product slug and title are required' });
       }
 
-      if (productData.is_active === true) {
-        const { error: deactivateError } = await supabase
-          .from('products')
-          .update({ is_active: false })
-          .neq('id', productData.id || '00000000-0000-0000-0000-000000000000');
-        if (deactivateError) throw deactivateError;
-      }
 
       const { data, error } = await supabase
         .from('products')
@@ -61,13 +54,6 @@ export default async function handler(req, res) {
       const { id, ...updates } = req.body || {};
       if (!id) return res.status(400).json({ error: 'Product ID is required' });
 
-      if (updates.is_active === true) {
-        const { error: deactivateError } = await supabase
-          .from('products')
-          .update({ is_active: false })
-          .neq('id', id);
-        if (deactivateError) throw deactivateError;
-      }
 
       const { data, error } = await supabase
         .from('products')

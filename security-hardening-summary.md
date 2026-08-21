@@ -14,7 +14,7 @@ The cart drawer routes to `/checkout` rather than `/admin`. Product landing and 
 
 ## Focused admin upgrade
 
-The admin dashboard now includes two focused work areas. Product operations support active/inactive publishing control, image URL and upload management through the existing product editor, product preview, pricing, and the product-level inside/outside delivery charges used by the server-side checkout RPC. Order operations load protected orders, show customer and delivery information, and allow status transitions among `pending`, `confirmed`, `processing`, `shipped`, `delivered`, and `cancelled`.
+The admin dashboard now includes two focused work areas. Product operations support multiple simultaneously published products, active/inactive publishing control, image URL and upload management through the existing product editor, product preview, pricing, and the product-level inside/outside delivery charges used by the server-side checkout RPC. Every active product is available from the all-products homepage and has its own slug-based landing page for Facebook campaigns. Order operations load protected orders, show customer and delivery information, and allow status transitions among `pending`, `confirmed`, `processing`, `shipped`, `delivered`, and `cancelled`.
 
 A protected `/api/catalog-sync` endpoint has been added. It can trigger the Paikari Hybrid B1 sync function using a separate server-to-server secret, without exposing that secret to the browser. The Paikari sync function source has been updated to accept either its normal authenticated JWT path or the configured `x-origen-sync-secret` path.
 
@@ -34,7 +34,7 @@ The Paikari sync function also uses `ORIGEN_CATALOG_URL` optionally; if omitted,
 
 ## Remaining operational steps
 
-Restore or reactivate the Paikari Supabase project, deploy the updated `sync-origen-catalog` function, and set the matching server-side sync secret. Then configure the Origen Vercel variables and deploy the admin commit. Finally, sign in to `/admin`, verify a product can be hidden and republished, update a delivery charge, change a test order status, and run the Paikari Sync button.
+Restore or reactivate the Paikari Supabase project, deploy the updated `sync-origen-catalog` function, and set the matching server-side sync secret. Then configure the Origen Vercel variables and deploy the admin commit. Finally, sign in to `/admin`, create or edit two products with `is_active=true`, verify that both appear on the all-products homepage, open each slug-based landing page, verify that hiding one product removes only that product from public pages, update a delivery charge, change a test order status, and run the Paikari Sync button.
 
 `npm run lint` still reports the repository’s pre-existing broad TypeScript/ESLint backlog. This remains deferred because the user explicitly prioritized P0 security and focused launch functionality over P2 cleanup.
 
