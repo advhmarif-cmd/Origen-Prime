@@ -3,7 +3,6 @@ import { Product } from '../lib/types';
 import { Plus, Edit2, Trash2, ExternalLink, RefreshCw, Code, X, Check, AlertCircle, Loader2, ShoppingBag, BarChart3, Clock, CheckCircle2, Truck, ShieldCheck, Ban } from 'lucide-react';
 import ProductEditor from '../components/ProductEditor';
 
-// 1. Realistic Bengali sample product data template
 const DEFAULT_PRODUCT_TEMPLATE: Partial<Product> = {
   slug: '',
   title: 'মদিনার প্রিমিয়াম আজওয়া খেজুর',
@@ -85,6 +84,8 @@ export default function AdminDashboard() {
   // JSON import modal
   const [showJsonModal, setShowJsonModal] = useState(false);
   const [jsonText, setJsonText] = useState('');
+  const [syncState, setSyncState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [syncMessage, setSyncMessage] = useState('');
 
   const handleLogin = async () => {
     setLoading(true);
@@ -210,7 +211,7 @@ export default function AdminDashboard() {
     try {
       const parsedData = JSON.parse(jsonText);
       const items = Array.isArray(parsedData) ? parsedData : [parsedData];
-      
+
       let successCount = 0;
       for (const item of items) {
         const { id, created_at, updated_at, ...cleanItem } = item;
@@ -237,6 +238,26 @@ export default function AdminDashboard() {
       });
       if (!response.ok) throw new Error('পণ্য মুছে ফেলা যায়নি');
       await fetchProducts();
+    }
+  };
+
+  const triggerCatalogSync = async () => {
+    setSyncState('loading');
+    setSyncMessage('Paikari catalog sync শুরু হচ্ছে...');
+    try {
+      const response = await fetch('/api/catalog-sync', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Catalog sync ব্যর্থ হয়েছে');
+      setSyncState('success');
+      setSyncMessage(`${payload.synced || 0} টি shared product sync হয়েছে`);
+      await fetchProducts();
+    } catch (error) {
+      setSyncState('error');
+      setSyncMessage(error instanceof Error ? error.message : 'Catalog sync ব্যর্থ হয়েছে');
     }
   };
 
@@ -298,12 +319,25 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {syncMessage && (
+          <div className={`mb-6 p-4 rounded-2xl text-xs font-bold ${syncState === 'error' ? 'bg-red-50 text-red-700 border border-red-100' : syncState === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-purple-50 text-purple-700 border border-purple-100'}`}>
+            {syncMessage}
+          </div>
+        )}
+
         {/* PRODUCTS TAB */}
         {activeTab === 'products' && (
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight">সকল পণ্য</h2>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={triggerCatalogSync}
+                  disabled={syncState === 'loading'}
+                  className="bg-purple-600 text-white font-black px-5 py-3 rounded-2xl flex items-center shadow-lg hover:bg-purple-700 transition active:scale-95 text-xs uppercase tracking-wider disabled:opacity-60"
+                >
+                  {syncState === 'loading' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null} Paikari Sync
+                </button>
                 <button
                   onClick={() => setShowJsonModal(true)}
                   className="bg-gray-900 text-white font-black px-5 py-3 rounded-2xl flex items-center shadow-lg hover:bg-black transition active:scale-95 text-xs uppercase tracking-wider"
