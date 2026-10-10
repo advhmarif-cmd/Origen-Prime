@@ -16,6 +16,22 @@ function normalizeItems(body) {
   return [];
 }
 
+function fromOrderRecord(order) {
+  const address = order.shipping_address && typeof order.shipping_address === 'object' ? order.shipping_address : {};
+  const items = Array.isArray(order.items) ? order.items : [];
+  const first = items[0] || {};
+  return {
+    ...order,
+    customer_name: address.name || '',
+    customer_phone: address.phone || '',
+    customer_address: address.address || '',
+    delivery_zone: address.zone || '',
+    product_title: first.productName || '',
+    quantity: Number(first.quantity || 0),
+    items,
+  };
+}
+
 export default async function handler(req, res) {
   setCors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
@@ -23,19 +39,11 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'POST') {
       const body = req.body || {};
-      const items = normalizeItems(body).map(item => ({
-        product_id: item?.product_id,
-        quantity: Number(item?.quantity),
-      }));
+      const items = normalizeItems(body).map(item => ({ product_id: item?.product_id, quantity: Number(item?.quantity) }));
+      if (!items.length || items.some(item => !item.product_id || !Number.isInteger(item.quantity))) return res.status(400).json({ error: 'Cart items are required' });
+      if (!body.customer_name || !body.customer_phone || !body.customer_address || !body.delivery_zone) return res.status(400).json({ error: 'Missing required checkout fields' });
 
-      if (!items.length || items.some(item => !item.product_id || !Number.isInteger(item.quantity))) {
-        return res.status(400).json({ error: 'Cart items are required' });
-      }
-      if (!body.customer_name || !body.customer_phone || !body.customer_address || !body.delivery_zone) {
-        return res.status(400).json({ error: 'Missing required checkout fields' });
-      }
-
-      const { data, error } = await supabase.rpc('create_orders_from_cart', {
+      const { data, error } = await supabase.rpc('create_origen_guest_order_from_cart', {
         p_items: items,
         p_customer_name: String(body.customer_name).trim(),
         p_customer_phone: String(body.customer_phone).trim(),
@@ -43,44 +51,34 @@ export default async function handler(req, res) {
         p_delivery_zone: body.delivery_zone,
       });
       if (error) throw error;
-
-      const orders = Array.isArray(data) ? data : data ? [data] : [];
-      if (!orders.length) throw new Error('Checkout did not create an order');
-      return res.status(201).json({ orders, order_group_id: orders[0].order_group_id });
+      const order = fromOrderRecord(data || {});
+      return res.status(201).json({ orders: [order], order_group_id: order.order_group_id || null });
     }
 
     if (!requireAdmin(req, res)) return;
 
     if (req.method === 'GET') {
       const { status } = req.query;
-      let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
+      let query = supabase.from('order_records').select('*').contains('shipping_address', { source: 'origen_prime' }).order('created_at', { ascending: false });
       if (status && status !== 'All') query = query.eq('status', status.toLowerCase());
       const { data, error } = await query;
       if (error) throw error;
-      return res.status(200).json(data || []);
+      return res.status(200).json((data || []).map(fromOrderRecord));
     }
 
     if (req.method === 'PUT') {
       const { id, status } = req.body || {};
       const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : '';
-      if (!id || !ALLOWED_STATUSES.has(normalizedStatus)) {
-        return res.status(400).json({ error: 'Valid order ID and status are required' });
-      }
-
-      const { data, error } = await supabase
-        .from('orders')
-        .update({ status: normalizedStatus })
-        .eq('id', id)
-        .select()
-        .single();
+      if (!id || !ALLOWED_STATUSES.has(normalizedStatus)) return res.status(400).json({ error: 'Valid order ID and status are required' });
+      const { data, error } = await supabase.from('order_records').update({ status: normalizedStatus }).eq('id', id).select('*').single();
       if (error) throw error;
-      return res.status(200).json(data);
+      return res.status(200).json(fromOrderRecord(data));
     }
 
     if (req.method === 'DELETE') {
       const { id } = req.body || {};
       if (!id) return res.status(400).json({ error: 'Order ID is required' });
-      const { error } = await supabase.from('orders').delete().eq('id', id);
+      const { error } = await supabase.from('order_records').delete().eq('id', id).contains('shipping_address', { source: 'origen_prime' });
       if (error) throw error;
       return res.status(200).json({ ok: true });
     }

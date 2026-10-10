@@ -7,14 +7,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(204).end();
-
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   if (!requireAdmin(req, res)) return;
 
   try {
     const { data: orders, error } = await supabase
-      .from('orders')
-      .select('id,status,total_amount,created_at')
+      .from('order_records')
+      .select('id,status,total_amount,created_at,shipping_address')
+      .contains('shipping_address', { source: 'origen_prime' })
       .order('created_at', { ascending: false });
     if (error) throw error;
 
@@ -24,9 +24,7 @@ export default async function handler(req, res) {
     const confirmedOrders = safeOrders.filter(order => ['confirmed', 'processing'].includes(order.status)).length;
     const shippedOrders = safeOrders.filter(order => ['shipped', 'delivered'].includes(order.status)).length;
     const cancelledOrders = safeOrders.filter(order => ['cancelled', 'rejected'].includes(order.status)).length;
-    const totalRevenue = safeOrders
-      .filter(order => !['cancelled', 'rejected'].includes(order.status))
-      .reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+    const totalRevenue = safeOrders.filter(order => !['cancelled', 'rejected'].includes(order.status)).reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
 
     const today = new Date();
     const chartData = Array.from({ length: 7 }).map((_, index) => {
@@ -37,16 +35,11 @@ export default async function handler(req, res) {
       return {
         date: day,
         orders: dayOrders.length,
-        revenue: dayOrders
-          .filter(order => !['cancelled', 'rejected'].includes(order.status))
-          .reduce((sum, order) => sum + Number(order.total_amount || 0), 0),
+        revenue: dayOrders.filter(order => !['cancelled', 'rejected'].includes(order.status)).reduce((sum, order) => sum + Number(order.total_amount || 0), 0),
       };
     });
 
-    return res.status(200).json({
-      summary: { totalOrders, pendingOrders, confirmedOrders, shippedOrders, cancelledOrders, totalRevenue },
-      chartData,
-    });
+    return res.status(200).json({ summary: { totalOrders, pendingOrders, confirmedOrders, shippedOrders, cancelledOrders, totalRevenue }, chartData });
   } catch (err) {
     console.error('Stats API error:', err);
     return res.status(500).json({ error: 'Unable to load statistics' });

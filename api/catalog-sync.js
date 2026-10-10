@@ -13,29 +13,25 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!requireAdmin(req, res)) return;
 
+  // Origen and Paikari now use the same catalog_products table. Calling the
+  // old cross-project sync would recursively read and re-upsert the same rows.
+  if (process.env.PAIKARI_SHARED_CATALOG === 'true') {
+    return res.status(200).json({ synced: 0, deactivated: 0, shared: true, message: 'Shared Paikari catalog is already active; no sync required.' });
+  }
+
   const syncUrl = process.env.PAIKARI_SYNC_URL;
   const syncSecret = process.env.PAIKARI_SYNC_SECRET;
   if (!syncUrl || !syncSecret) {
-    return res.status(503).json({
-      error: 'Paikari sync is not configured',
-      required: ['PAIKARI_SYNC_URL', 'PAIKARI_SYNC_SECRET'],
-    });
+    return res.status(503).json({ error: 'Paikari sync is not configured', required: ['PAIKARI_SYNC_URL', 'PAIKARI_SYNC_SECRET'] });
   }
 
   try {
     const response = await fetch(syncUrl, {
       method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'x-origen-sync-secret': syncSecret,
-      },
+      headers: { accept: 'application/json', 'x-origen-sync-secret': syncSecret },
     });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      return res.status(response.status >= 500 ? 502 : response.status).json({
-        error: payload.error || 'Paikari catalog sync failed',
-      });
-    }
+    if (!response.ok) return res.status(response.status >= 500 ? 502 : response.status).json({ error: payload.error || 'Paikari catalog sync failed' });
     return res.status(200).json(payload);
   } catch (error) {
     console.error('Catalog sync API error:', error);
